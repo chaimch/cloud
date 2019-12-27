@@ -1,25 +1,37 @@
+import os
+
 from flask import Flask
 
 
 class CloudFlask(Flask):
 
     @classmethod
-    def create_app(cls, import_name=None):
-        flask_app = cls(import_name or __name__)
+    def create_app(cls, config_dot_path=None, import_name=None):
+        """创建app"""
+        self = cls(import_name or __name__)
 
-        flask_app.dynamic_register()
+        self._parse_config(config_dot_path)
 
-        return flask_app
+        self.dynamic_register()
+
+        return self
+
+    def _parse_config(self, config_dot_path=None):
+        """解析配置"""
+        config_dot_path = config_dot_path or os.getenv('FLASK_CONFIG', 'config.DevConfig')
+        self.config.from_object(config_dot_path)
 
     def dynamic_register(self):
-        """动态代理注册
-            1. TODO: 待通过动态导入bp包下内容来实现动态注册
-        """
-        from bp.mysql_bp import mysql_bp
-        from bp.redis_bp import redis_bp
+        """动态代理注册"""
+        for may_bp in self.config:
+            if not self._is_blueprint_cfg(may_bp):
+                continue
+            self.register_blueprint(self.config[may_bp])
 
-        self.register_blueprint(mysql_bp)
-        self.register_blueprint(redis_bp)
+    def _is_blueprint_cfg(self, may_bp_cfg):
+        """是否是bp的配置"""
+        suffix_bp = self.config['BP_SUFFIX']
+        return may_bp_cfg and may_bp_cfg.split('_')[-1] == suffix_bp
 
 
 app = CloudFlask.create_app()
