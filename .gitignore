@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.swp
+.coverage
+env/
+venv/
+covhtml/
+.vscode
+.idea
+.pytest_cache
+1.out
+.tox
+.DS_Store
+.history
