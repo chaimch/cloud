@@ -3,9 +3,6 @@ from config.prodconfig import BaseProdConfig
 from config.testconfig import BaseTestConfig
 
 
-
-
-
 class DevConfig(BaseDevConfig):
     """开发配置"""
     pass
