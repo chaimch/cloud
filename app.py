@@ -30,8 +30,10 @@ class CloudFlask(Flask):
 
     def _is_blueprint_cfg(self, may_bp_cfg):
         """是否是bp的配置"""
-        suffix_bp = self.config['BP_SUFFIX']
-        return may_bp_cfg and may_bp_cfg.split('_')[-1] == suffix_bp
+        bp_suffix = self.config['BP_SUFFIX']
+        return isinstance(may_bp_cfg, str) and may_bp_cfg.split('_')[-1] == bp_suffix
 
 
-app = CloudFlask.create_app()
+if __name__ == '__main__':
+    app = CloudFlask.create_app(config_dot_path='config.DevConfig')
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,5 +1,8 @@
 class BpConfig:
     """蓝图配置"""
+    from bp import urls
+    URLS = urls
+
     BP_SUFFIX = 'BP'
 
     from bp.mysql_bp import mysql_bp
