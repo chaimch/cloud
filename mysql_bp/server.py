@@ -1,8 +1,4 @@
-from flask import Blueprint
-
 from resource.docker import DockerResource
-
-mysql_bp = Blueprint('mysql_bp', __name__, url_prefix='/api/mysql')
 
 
 class MysqlInstanceServer(DockerResource):

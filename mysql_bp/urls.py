@@ -1,8 +1,10 @@
+from flask import Blueprint
+
 from exts.cloudapi import CloudAPi
 from mysql_bp.server import MysqlConfigServer
 from mysql_bp.server import MysqlInstanceServer
-from mysql_bp.server import mysql_bp
 
+mysql_bp = Blueprint('mysql_bp', __name__, url_prefix='/api/mysql')
 mysql_server_api = CloudAPi(mysql_bp)
 
 mysql_server_api.add_resource(MysqlInstanceServer, '/create_instance')

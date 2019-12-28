@@ -1,16 +1,23 @@
-from flask import Blueprint
-from flask_restful import Resource
-
-redis_bp = Blueprint('redis_bp', __name__, url_prefix='/api/redis')
+from resource.docker import DockerResource
 
 
-class RedisInstanceServer(Resource):
+class RedisInstanceServer(DockerResource):
     def post(self):
         """创建redis实例"""
-        return "Redis instance has been created"
+        image_name = 'redis'
+        name = 'test'
+
+        container = self.get_or_create_container(image_name,
+                                                 name=name,
+                                                 ports={'6379/tcp': 6379})
+        return self.container_to_json(container)
 
 
-class RedisConfigServer(Resource):
+class RedisConfigServer(DockerResource):
     def get(self):
         """获取redis配置"""
-        return "redis config"
+        name = 'test'
+
+        container = self.get_container(name)
+
+        return self.container_to_json(container)

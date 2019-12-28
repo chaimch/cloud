@@ -1,7 +1,25 @@
 """请求序列化
     1. 兼容docker相关操作执行后返回结果为bytes情况
 """
+import json
+from datetime import datetime, date
 from time import mktime
+
+
+class CJsonEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        else:
+            return json.JSONEncoder.default(self, obj)
+
+    @classmethod
+    def _dt_to_ts(cls, dt):
+        """datetime => 6位小数时间戳"""
+        return mktime(dt.timetuple()) + dt.microsecond * 0.000001
 
 
 class CloudResponse:
@@ -19,30 +37,19 @@ class CloudResponse:
         if isinstance(response.get('data', ''), bytes):
             response['data'] = str(response['data'], encoding="utf-8")
 
-        # 兼容json与usjon的, 结合flask_restful使用还需在loads回来, 有点多余, 待优化
+        # 兼容json与usjon的, 结合flask_restful使用还需再loads回来, 有点多余, 待优化
         try:
             import ujson as json
             response = json.dumps(response)
-        except:
+        except Exception as e:
             import json
-            response = json.dumps(response, default=cls._json_default)
+            response = json.dumps(response, cls=CJsonEncoder, skipkeys=True)
         finally:
-            import json
-            response = json.loads(response)
+            if isinstance(response, str):
+                import json
+                response = json.loads(response)
 
         return response
-
-    @classmethod
-    def _dt_to_ts(cls, dt):
-        """datetime => 6位小数时间戳"""
-        return mktime(dt.timetuple()) + dt.microsecond * 0.000001
-
-    def _json_default(self, dt):
-        """默认json序列化格式"""
-        from datetime import datetime, date
-        if isinstance(dt, (datetime, date)):
-            return self._dt_to_ts(dt)
-        raise TypeError('Type %s not serialzable' % type(dt))
 
     @property
     def response(self):
