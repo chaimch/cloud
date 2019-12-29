@@ -18,6 +18,7 @@ class ResponseCodeEnum(IntEnum):
     ok = 0
     wrong_args = 102
     db_not_update = 201
+    inner_error = 501
 
 
 class ResponseMsgEnum(StrEnum):
@@ -25,8 +26,15 @@ class ResponseMsgEnum(StrEnum):
     ok = 'ok'
     wrong_args = '参数有误'
     db_not_update = '数据未更新'
+    inner_error = '内部出错'
 
 
 class ImageType(StrEnum):
     redis = 'redis'
     mysql = 'mysql'
+
+
+class ContainerStatus(StrEnum):
+    created = '已创建'
+    running = '正在运行'
+    exited = '已退出'

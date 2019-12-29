@@ -1,5 +1,11 @@
+import logging
+import string
+from random import choice
+
 from flask import request
 from flask_restful import Resource
+
+from const.enum import ResponseCodeEnum, ResponseMsgEnum
 
 
 class BaseResource(Resource):
@@ -34,7 +40,11 @@ class BaseResource(Resource):
         self.__init_hook__()
         resp = self.before_request(*args, **kwargs)
         if not resp:
-            resp = super().dispatch_request(*args, **kwargs)
+            try:
+                resp = super().dispatch_request(*args, **kwargs)
+            except Exception as e:
+                logging.exception(e)
+                resp = str(e), ResponseCodeEnum.inner_error, ResponseMsgEnum.inner_error
             self.after_request(resp, *args, **kwargs)
         return resp
 
@@ -42,3 +52,8 @@ class BaseResource(Resource):
         """请求后钩子"""
         for func in self.hook_after_request_func_list:
             func(resp, *args, **kwargs)
+
+    @classmethod
+    def generate_password(cls, length=8, chars=string.ascii_letters + string.digits):
+        """指定位数, 随机密码生成"""
+        return ''.join([choice(chars) for i in range(length)])

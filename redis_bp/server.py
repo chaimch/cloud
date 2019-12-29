@@ -4,7 +4,11 @@ from resource.docker import DockerResource
 
 class RedisInstanceServer(DockerResource):
     def check_params(self, *args, **kwargs):
-        return RedisInstanceForm(data=self.params).check_for_return()
+        return RedisInstanceForm(
+            data=dict(
+                self.params,
+                resource=self
+            )).check_for_return()
 
     def post(self):
         """创建redis实例"""
@@ -12,13 +16,15 @@ class RedisInstanceServer(DockerResource):
         name = self.params['name']
         ports = self.params['ports']
         mem_limit = self.params['mem_limit']
+        password = self.generate_password()
 
-        container = self.get_or_create_container(image_name,
-                                                 name=name,
-                                                 ports=ports,
-                                                 mem_limit=mem_limit)
+        container = self.create_container(image_name,
+                                          command=[f'--requirepass {password}'],
+                                          name=name,
+                                          ports=ports,
+                                          mem_limit=mem_limit)
 
-        return self.container_to_json(container)
+        return self.container_to_json(container, password=password)
 
 
 class RedisConfigServer(DockerResource):
