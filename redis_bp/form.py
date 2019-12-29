@@ -41,4 +41,4 @@ class RedisConfigForm(BaseForm):
             raise validators.ValidationError(f'请传入resource对象')
 
         if not resource.get_container(name=name):
-            raise validators.ValidationError(f'[{name}]容器不已存在')
+            raise validators.ValidationError(f'[{name}]容器不存在')
