@@ -17,6 +17,7 @@ class RedisInstanceServer(DockerResource):
                                                  name=name,
                                                  ports=ports,
                                                  mem_limit=mem_limit)
+
         return self.container_to_json(container)
 
 
