@@ -1,7 +1,7 @@
 from wtforms import fields
 from wtforms import validators
 
-from const.enum import ImageType, ContainerStatus
+from const.enum import ImageType
 from exts.cloudform import BaseForm
 
 
