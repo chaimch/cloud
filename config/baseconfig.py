@@ -2,16 +2,10 @@ class BpConfig:
     """蓝图配置"""
     BP_SUFFIX = 'BP'
 
-    from mysql_bp import urls as mysql_server_urls
-    MYSQL_URLS = mysql_server_urls
-
-    from mysql_bp.server import mysql_bp
+    from mysql_bp.urls import mysql_bp
     MYSQL_BP = mysql_bp
 
-    from redis_bp import urls as redis_server_urls
-    REDIS_URLS = redis_server_urls
-
-    from redis_bp.server import redis_bp
+    from redis_bp.urls import redis_bp
     REDIS_BP = redis_bp
 
 

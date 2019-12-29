@@ -1,10 +1,12 @@
 import logging
 
 import docker
-from flask_restful import Resource
+from docker.errors import NotFound
+
+from resource.base import BaseResource
 
 
-class DockerResource(Resource):
+class DockerResource(BaseResource):
     def __init__(self):
         self.dc = self.docker_client = docker.from_env()
         self.logger = self._get_default_logger()
@@ -19,7 +21,12 @@ class DockerResource(Resource):
 
     def get_container(self, name=None, id=None):
         """获取指定容器"""
-        return self.dc.containers.get(name or id)
+        try:
+            container = self.dc.containers.get(name or id)
+        except NotFound as e:
+            self.logger.info(e)
+            container = None
+        return container
 
     def get_or_create_container(self, image_name, name=None, id=None, record_logging=False, **kwargs):
         """获取或创建容器"""
@@ -39,7 +46,7 @@ class DockerResource(Resource):
 
         return container
 
-    def container_to_json(self, container):
+    def container_to_json(self, container, detail=False):
         """容器对象序列化为json"""
         resp = {}
         if not container:
@@ -48,11 +55,17 @@ class DockerResource(Resource):
         image_attrs = container.image.attrs
         resp = dict(id=container.id,
                     short_id=container.short_id,
-                    repotags=image_attrs.get('RepoTags'),
+                    repotags=image_attrs['RepoTags'],
                     labels=container.labels,
                     name=container.name,
                     ports=container.ports,
-                    status=container.status)
+                    status=container.status,
+                    create_time=image_attrs['Created'])
+
+        if detail:
+            attrs = container.attrs
+            host_config = attrs['HostConfig']
+            resp['total_memory'] = host_config['Memory']
         return resp
 
     def log_container(self, container):

@@ -25,3 +25,8 @@ class ResponseMsgEnum(StrEnum):
     ok = 'ok'
     wrong_args = '参数有误'
     db_not_update = '数据未更新'
+
+
+class ImageType(StrEnum):
+    redis = 'redis'
+    mysql = 'mysql'
