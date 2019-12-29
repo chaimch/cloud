@@ -1,7 +1,7 @@
 from wtforms import fields
 from wtforms import validators
 
-from const.enum import ImageType, ContainerStatus
+from const.enum import ImageTypeEnum, ContainerStatusEnum
 from exts.cloudform import BaseForm
 
 
@@ -14,7 +14,7 @@ class RedisInstanceForm(BaseForm):
 
     def validate_image_name(self, field):
         image_name = field.data
-        if image_name != ImageType.redis.name:
+        if image_name != ImageTypeEnum.redis.name:
             raise validators.ValidationError(f'{image_name}镜像不支持')
 
     def validate_name(self, field):
@@ -22,7 +22,7 @@ class RedisInstanceForm(BaseForm):
         resource = self.resource.data
 
         container = resource.get_container(name=name)
-        if container and container.status == ContainerStatus.running.name:
+        if container and container.status == ContainerStatusEnum.running.name:
             raise validators.ValidationError(f'[{name}]容器已存在, 当前状态: {container.status}')
 
     def validate_ports(self, field):

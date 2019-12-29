@@ -3,7 +3,7 @@ import logging
 import docker
 from docker.errors import NotFound
 
-from const.enum import ContainerStatus
+from const.enum import ContainerStatusEnum
 from resource.base import BaseResource
 
 
@@ -48,7 +48,7 @@ class DockerResource(BaseResource):
         created = False
 
         # 删除未运行的容器
-        self.remove_container(container)
+        container = self.remove_container(container)
 
         # 不存在则创建容器
         if not container:
@@ -64,12 +64,12 @@ class DockerResource(BaseResource):
         """移除容器"""
         if not container:
             return
-        if container.status == ContainerStatus.running.name:
+        if container.status == ContainerStatusEnum.running.name:
             raise ValueError('容器正在运行, 不允许删除')
 
-        res = container.remove()
-        self.logger.info(f'{container.name} has been remove, res: {res}')
-        return res
+        container.remove()
+        self.logger.info(f'{container.name} has been remove')
+        return self.get_container(container.name)
 
     def container_to_json(self, container, detail=False, **kwargs):
         """容器对象序列化为json"""

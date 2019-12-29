@@ -17,13 +17,19 @@ class MysqlInstanceServer(DockerResource, OSResource):
         name = self.params['name']
         ports = self.params['ports']
         mem_limit = self.params['mem_limit']
+        database = self.params['database']
+        charset = self.params['charset']
+
         password = self.generate_password()
 
-        container = self.create_container(image_name,
-                                          command=[f'--requirepass {password}'],
-                                          name=name,
-                                          ports=ports,
-                                          mem_limit=mem_limit)
+        _, container = self.get_or_create_container(image_name,
+                                                    command=[f'--character-set-server={charset}',
+                                                             f'--collation-server={charset}_unicode_ci'],
+                                                    name=name,
+                                                    ports=ports,
+                                                    mem_limit=mem_limit,
+                                                    environment={'MYSQL_ROOT_PASSWORD': password,
+                                                                 'MYSQL_DATABASE': database})
 
         return self.container_to_json(container, password=password)
 

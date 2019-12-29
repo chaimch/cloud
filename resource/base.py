@@ -54,6 +54,6 @@ class BaseResource(Resource):
             func(resp, *args, **kwargs)
 
     @classmethod
-    def generate_password(cls, length=8, chars=string.ascii_letters + string.digits):
+    def generate_password(cls, length=16, chars=string.ascii_letters + string.digits):
         """指定位数, 随机密码生成"""
         return ''.join([choice(chars) for i in range(length)])

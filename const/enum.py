@@ -29,12 +29,17 @@ class ResponseMsgEnum(StrEnum):
     inner_error = '内部出错'
 
 
-class ImageType(StrEnum):
+class ImageTypeEnum(StrEnum):
     redis = 'redis'
     mysql = 'mysql'
 
 
-class ContainerStatus(StrEnum):
+class ContainerStatusEnum(StrEnum):
     created = '已创建'
     running = '正在运行'
     exited = '已退出'
+
+
+class CharsetEnum(StrEnum):
+    utf8 = 'utf8'
+    utf8mb4 = 'utf8mb4'

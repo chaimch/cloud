@@ -19,11 +19,11 @@ class RedisInstanceServer(DockerResource, OSResource):
         mem_limit = self.params['mem_limit']
         password = self.generate_password()
 
-        container = self.get_or_create_container(image_name,
-                                                 command=[f'--requirepass {password}'],
-                                                 name=name,
-                                                 ports=ports,
-                                                 mem_limit=mem_limit)
+        _, container = self.get_or_create_container(image_name,
+                                                    command=[f'--requirepass {password}'],
+                                                    name=name,
+                                                    ports=ports,
+                                                    mem_limit=mem_limit)
 
         return self.container_to_json(container, password=password)
 
