@@ -30,6 +30,24 @@ class MysqlInstanceForm(BaseForm):
         if container and container.status == ContainerStatusEnum.running.name:
             raise validators.ValidationError(f'[{name}]容器已存在, 当前状态: {container.status}')
 
+    def validate_ports(self, field):
+        """校验端口是否被占用"""
+        ports = field.data
+        resource = self.resource.data
+        for source_port_and_protocol, target_port in ports.items():
+            source_port, _ = source_port_and_protocol.split('/')
+            try:
+                source_port = int(source_port)
+            except Exception as e:
+                raise validators.ValidationError(f'invalid  ports, {ports}')
+
+            free_port = resource.get_free_port(target_port)
+            if not free_port:
+                raise validators.ValidationError('无可用端口, 请稍后再试')
+
+            if free_port != target_port:
+                raise validators.ValidationError(f'{target_port} 端口已被占用, 推荐使用{free_port}端口')
+
     def validate_charset(self, field):
         charset = field.data
         if charset not in CharsetEnum.__members__.keys():

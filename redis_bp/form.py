@@ -36,12 +36,12 @@ class RedisInstanceForm(BaseForm):
             except Exception as e:
                 raise validators.ValidationError(f'invalid  ports, {ports}')
 
-            free_port = resource.get_free_port(source_port)
+            free_port = resource.get_free_port(target_port)
             if not free_port:
                 raise validators.ValidationError('无可用端口, 请稍后再试')
 
-            if free_port != source_port:
-                raise validators.ValidationError(f'{source_port} 端口已被占用, 推荐使用{free_port}端口')
+            if free_port != target_port:
+                raise validators.ValidationError(f'{target_port} 端口已被占用, 推荐使用{free_port}端口')
 
 
 class RedisConfigForm(BaseForm):
