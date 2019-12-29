@@ -1,8 +1,9 @@
 from redis_bp.form import RedisConfigForm, RedisInstanceForm
 from resource.docker import DockerResource
+from resource.os import OSResource
 
 
-class RedisInstanceServer(DockerResource):
+class RedisInstanceServer(DockerResource, OSResource):
     def check_params(self, *args, **kwargs):
         return RedisInstanceForm(
             data=dict(
@@ -18,11 +19,11 @@ class RedisInstanceServer(DockerResource):
         mem_limit = self.params['mem_limit']
         password = self.generate_password()
 
-        container = self.create_container(image_name,
-                                          command=[f'--requirepass {password}'],
-                                          name=name,
-                                          ports=ports,
-                                          mem_limit=mem_limit)
+        container = self.get_or_create_container(image_name,
+                                                 command=[f'--requirepass {password}'],
+                                                 name=name,
+                                                 ports=ports,
+                                                 mem_limit=mem_limit)
 
         return self.container_to_json(container, password=password)
 

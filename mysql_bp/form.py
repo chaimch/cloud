@@ -6,7 +6,7 @@ from exts.cloudform import BaseForm
 
 
 class MysqlInstanceForm(BaseForm):
-    """mysql instance的form校验类"""
+    """Mysql instance的form校验类"""
     image_name = fields.StringField(validators=[validators.DataRequired(message='请填写镜像名称')])
     name = fields.StringField(validators=[validators.DataRequired(message='请填写容器名称')])
     ports = fields.FileField(validators=[validators.DataRequired(message='请填写端口配置')])
@@ -17,7 +17,28 @@ class MysqlInstanceForm(BaseForm):
         if image_name != ImageType.mysql.name:
             raise validators.ValidationError(f'{image_name}镜像不支持')
 
+    def validate_name(self, field):
+        name = field.data
+        resource = self.resource.data
+
+        if not resource:
+            raise validators.ValidationError(f'请传入resource对象')
+
+        container = resource.get_container(name=name)
+        if container:
+            raise validators.ValidationError(f'[{name}]容器已存在, 当前状态: {container.status}')
+
 
 class MysqlConfigForm(BaseForm):
-    """mysql config的form校验类"""
+    """Mysql config的form校验类"""
     name = fields.StringField(validators=[validators.DataRequired(message='请填写容器名称')])
+
+    def validate_name(self, field):
+        name = field.data
+        resource = self.resource.data
+
+        if not resource:
+            raise validators.ValidationError(f'请传入resource对象')
+
+        if not resource.get_container(name=name):
+            raise validators.ValidationError(f'[{name}]容器不存在')

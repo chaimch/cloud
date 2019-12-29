@@ -47,6 +47,9 @@ class DockerResource(BaseResource):
         container = self.get_container(name or id)
         created = False
 
+        # 删除未运行的容器
+        self.remove_container(container)
+
         # 不存在则创建容器
         if not container:
             container = self.create_container(image_name,
@@ -59,6 +62,8 @@ class DockerResource(BaseResource):
 
     def remove_container(self, container):
         """移除容器"""
+        if not container:
+            return
         if container.status == ContainerStatus.running.name:
             raise ValueError('容器正在运行, 不允许删除')
 

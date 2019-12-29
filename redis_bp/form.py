@@ -1,7 +1,7 @@
 from wtforms import fields
 from wtforms import validators
 
-from const.enum import ImageType
+from const.enum import ImageType, ContainerStatus
 from exts.cloudform import BaseForm
 
 
@@ -21,12 +21,27 @@ class RedisInstanceForm(BaseForm):
         name = field.data
         resource = self.resource.data
 
-        if not resource:
-            raise validators.ValidationError(f'请传入resource对象')
-
         container = resource.get_container(name=name)
-        if container:
+        if container and container.status == ContainerStatus.running.name:
             raise validators.ValidationError(f'[{name}]容器已存在, 当前状态: {container.status}')
+
+    def validate_ports(self, field):
+        """校验端口是否被占用"""
+        ports = field.data
+        resource = self.resource.data
+        for source_port_and_protocol, target_port in ports.items():
+            source_port, _ = source_port_and_protocol.split('/')
+            try:
+                source_port = int(source_port)
+            except Exception as e:
+                raise validators.ValidationError(f'invalid  ports, {ports}')
+
+            free_port = resource.get_free_port(source_port)
+            if not free_port:
+                raise validators.ValidationError('无可用端口, 请稍后再试')
+
+            if free_port != source_port:
+                raise validators.ValidationError(f'{source_port} 端口已被占用, 推荐使用{free_port}端口')
 
 
 class RedisConfigForm(BaseForm):
@@ -36,9 +51,6 @@ class RedisConfigForm(BaseForm):
     def validate_name(self, field):
         name = field.data
         resource = self.resource.data
-
-        if not resource:
-            raise validators.ValidationError(f'请传入resource对象')
 
         if not resource.get_container(name=name):
             raise validators.ValidationError(f'[{name}]容器不存在')
