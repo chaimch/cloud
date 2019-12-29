@@ -7,8 +7,8 @@ class RedisInstanceServer(DockerResource):
         return RedisInstanceForm(
             data=dict(
                 self.params,
-                resource=self
-            )).check_for_return()
+                resource=self)
+        ).check_for_return()
 
     def post(self):
         """创建redis实例"""
@@ -29,7 +29,11 @@ class RedisInstanceServer(DockerResource):
 
 class RedisConfigServer(DockerResource):
     def check_params(self, *args, **kwargs):
-        return RedisConfigForm(data=self.params).check_for_return()
+        return RedisConfigForm(
+            data=dict(
+                self.params,
+                resource=self)
+        ).check_for_return()
 
     def get(self):
         """获取redis配置"""

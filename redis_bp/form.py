@@ -11,7 +11,6 @@ class RedisInstanceForm(BaseForm):
     name = fields.StringField(validators=[validators.DataRequired(message='请填写容器名称')])
     ports = fields.FileField(validators=[validators.DataRequired(message='请填写端口配置')])
     mem_limit = fields.IntegerField(validators=[validators.DataRequired(message='请填写内存容量上限')])
-    resource = fields.FileField(validators=[validators.DataRequired(message='请传入resource')])
 
     def validate_image_name(self, field):
         image_name = field.data
@@ -22,6 +21,9 @@ class RedisInstanceForm(BaseForm):
         name = field.data
         resource = self.resource.data
 
+        if not resource:
+            raise validators.ValidationError(f'请传入resource对象')
+
         container = resource.get_container(name=name)
         if container:
             raise validators.ValidationError(f'[{name}]容器已存在, 当前状态: {container.status}')
@@ -30,3 +32,13 @@ class RedisInstanceForm(BaseForm):
 class RedisConfigForm(BaseForm):
     """redis config的form校验类"""
     name = fields.StringField(validators=[validators.DataRequired(message='请填写容器名称')])
+
+    def validate_name(self, field):
+        name = field.data
+        resource = self.resource.data
+
+        if not resource:
+            raise validators.ValidationError(f'请传入resource对象')
+
+        if not resource.get_container(name=name):
+            raise validators.ValidationError(f'[{name}]容器不已存在')

@@ -1,9 +1,10 @@
-from wtforms import Form
+from wtforms import Form, fields
 
 from const.enum import ResponseCodeEnum
 
 
 class BaseForm(Form):
+    resource = fields.FileField()
 
     def check(self):
         """检验form"""
